@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router';
-import { Check, Sparkles } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { Seo } from '@/lib/seo';
 import { breadcrumbJsonLd, serviceJsonLd } from '@/lib/jsonld';
 import { getService, SERVICES } from '@/data/services';
@@ -134,7 +134,6 @@ export default function ServiceDetailPage() {
             />
             <Reveal className="mt-8 rounded-xl border border-violet/30 bg-violet/10 p-6">
               <p className="flex items-center gap-2 font-semibold text-white">
-                <Sparkles aria-hidden className="size-4.5 text-[#b99bff]" />
                 Where AI fits in
               </p>
               <p className="mt-2.5 leading-relaxed text-slate-300">{service.aiNote}</p>

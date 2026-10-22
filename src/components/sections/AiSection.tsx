@@ -1,4 +1,4 @@
-import { Check, ShieldCheck, Sparkles, UserCheck } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { Section, SectionHeading } from '@/components/ui/Section';
 import { Reveal } from '@/components/ui/Reveal';
 import { TextLink } from '@/components/ui/Button';
@@ -43,12 +43,7 @@ export function AiSection() {
 
         <div className="relative mt-16 grid gap-5 lg:grid-cols-[1fr_auto_1fr] lg:items-stretch">
           <Reveal className="rounded-xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur-sm">
-            <div className="flex items-center gap-3">
-              <span aria-hidden className="inline-flex size-10 items-center justify-center rounded-md bg-violet/20 text-[#b99bff] ring-1 ring-violet/30">
-                <Sparkles className="size-5" />
-              </span>
-              <h3 className="text-lg font-semibold text-white">What AI accelerates</h3>
-            </div>
+            <h3 className="text-lg font-semibold text-white">What AI accelerates</h3>
             <ul className="mt-6 space-y-3.5">
               {AI_ACCELERATES.map((item) => (
                 <li key={item} className="flex gap-3 text-slate-300">
@@ -61,18 +56,12 @@ export function AiSection() {
 
           <Reveal delay={100} className="flex items-center justify-center lg:px-2">
             <div className="flex items-center gap-3 rounded-full border border-cyan/30 bg-cyan/10 px-4 py-2.5 text-sm font-semibold text-cyan lg:flex-col lg:rounded-2xl lg:px-4 lg:py-6">
-              <ShieldCheck aria-hidden className="size-5" />
               <span className="lg:[writing-mode:vertical-rl] lg:rotate-180">Human review gate</span>
             </div>
           </Reveal>
 
           <Reveal delay={200} className="rounded-xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur-sm">
-            <div className="flex items-center gap-3">
-              <span aria-hidden className="inline-flex size-10 items-center justify-center rounded-md bg-cyan/15 text-cyan ring-1 ring-cyan/30">
-                <UserCheck className="size-5" />
-              </span>
-              <h3 className="text-lg font-semibold text-white">What engineers own</h3>
-            </div>
+            <h3 className="text-lg font-semibold text-white">What engineers own</h3>
             <ul className="mt-6 space-y-3.5">
               {HUMANS_OWN.map((item) => (
                 <li key={item} className="flex gap-3 text-slate-300">

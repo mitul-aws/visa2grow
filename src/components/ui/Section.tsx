@@ -69,7 +69,6 @@ export function Eyebrow({ children, dark }: { children: ReactNode; dark?: boolea
         dark ? 'text-cyan' : 'text-blue',
       )}
     >
-      <span aria-hidden className={cn('h-px w-6', dark ? 'bg-cyan/70' : 'bg-blue/60')} />
       {children}
     </p>
   );

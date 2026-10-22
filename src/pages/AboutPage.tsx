@@ -18,7 +18,7 @@ const crumbs = [
 ];
 
 const PRINCIPLES: Array<{ icon: IconName; title: string; body: string }> = [
-  { icon: 'sparkles', title: 'AI-first, human-led', body: 'We use AI wherever it makes engineering faster, and keep people accountable for every decision and every line that ships.' },
+  { icon: 'workflow', title: 'AI-first, human-led', body: 'We use AI wherever it makes engineering faster, and keep people accountable for every decision and every line that ships.' },
   { icon: 'shield', title: 'Quality is not optional', body: 'Moving faster is only useful if what we deliver works, is secure and can be maintained by someone else.' },
   { icon: 'target', title: 'Outcomes over output', body: 'We measure success by whether the software helps your business, not by how much of it we write.' },
   { icon: 'layers', title: 'Built to be maintained', body: 'Clear structure, strong typing, tests and documentation, so the product outlives the project.' },

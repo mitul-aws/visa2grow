@@ -5,7 +5,7 @@ import { SITE } from '@/lib/site';
 
 const REASONS: Array<{ icon: IconName; title: string; body: string }> = [
   {
-    icon: 'sparkles',
+    icon: 'workflow',
     title: 'AI-first development workflows',
     body: 'AI tools are built into how we scaffold, test, refactor and document, so routine work moves quickly.',
   },

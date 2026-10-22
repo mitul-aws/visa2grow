@@ -1,4 +1,4 @@
-import { Check, GitPullRequest, Sparkles } from 'lucide-react';
+import { Check, GitPullRequest } from 'lucide-react';
 
 /**
  * Decorative product visual: an editor with an AI suggestion awaiting human
@@ -58,7 +58,6 @@ export function HeroVisual() {
               <span className="text-[#6a2bd9]">test</span>(<span className="text-[#0a6b49]">'publishes order.created'</span>, ...);
             </div>
             <div className="mt-1.5 flex items-center gap-1.5 font-sans text-[0.68rem] font-semibold text-violet">
-              <Sparkles className="size-3.5" />
               AI-suggested tests · awaiting engineer review
             </div>
           </div>
