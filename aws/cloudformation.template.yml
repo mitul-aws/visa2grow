@@ -81,7 +81,8 @@ Rules:
       - Assert: !Equals [!Ref 'AWS::Region', us-east-1]
         AssertDescription: Deploy this stack in us-east-1 (CloudFront certificates and WAF for CloudFront live there).
   CertificateWithDomains:
-    RuleCondition: !Not [!Equals [!Join ['', !Ref DomainNames], '']]
+    # Rules only allow a few functions (no !Join), hence EachMemberEquals.
+    RuleCondition: !Not [!EachMemberEquals [!Ref DomainNames, '']]
     Assertions:
       - Assert: !Not [!Equals [!Ref CertificateArn, '']]
         AssertDescription: CertificateArn is required when DomainNames is set.
