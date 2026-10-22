@@ -104,7 +104,7 @@ GitHub → repository → **Settings → Secrets and variables → Actions**:
 - Variable `DEPLOY_TO_AWS` = `true` (until this is set, the pipeline only runs tests)
 - Variable `AWS_STACK_NAME` only if you changed the stack name
 
-**Settings → Environments → New environment `production`.** Add required reviewers if you want to approve each release.
+**Settings → Environments → New environment `production`.** Under *Deployment branches*, allow only `master` (the AWS role trusts this environment, so this is what limits deploys to `master`). Add required reviewers if you want to approve each release.
 
 The deploy role can only write to this bucket, invalidate this distribution and update this Lambda, and only
 workflows running on the `main` branch (`master`) of that repository can assume it.
