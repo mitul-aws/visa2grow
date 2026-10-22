@@ -14,7 +14,7 @@ Metadata:
       - Label: { default: Protection }
         Parameters: [EnableWafRateLimit, WafRateLimitPer5Min]
       - Label: { default: CI/CD }
-        Parameters: [GitHubRepository, GitHubBranch, CreateGitHubOidcProvider]
+        Parameters: [GitHubRepository, GitHubBranch, GitHubOidcSubjectPrefix, CreateGitHubOidcProvider]
 
 Parameters:
   DomainNames:
@@ -69,6 +69,13 @@ Parameters:
   GitHubBranch:
     Type: String
     Default: master
+  GitHubOidcSubjectPrefix:
+    Type: String
+    Default: ''
+    Description: >-
+      The repo's OIDC subject prefix if GitHub uses immutable subjects, e.g.
+      "repo:owner@123/repo@456" (gh api repos/OWNER/REPO/actions/oidc/customization/sub).
+      Empty = "repo:<GitHubRepository>". scripts/aws/deploy-infra.sh fills this in automatically.
   CreateGitHubOidcProvider:
     Type: String
     Default: 'true'
@@ -93,6 +100,7 @@ Conditions:
   HasWaf: !Equals [!Ref EnableWafRateLimit, 'true']
   HasGitHub: !Not [!Equals [!Ref GitHubRepository, '']]
   CreateOidcProvider: !And [!Condition HasGitHub, !Equals [!Ref CreateGitHubOidcProvider, 'true']]
+  HasSubjectPrefix: !Not [!Equals [!Ref GitHubOidcSubjectPrefix, '']]
 
 Resources:
   # ---------------------------------------------------------------- storage
@@ -416,8 +424,12 @@ Resources:
                 # Jobs that use a GitHub environment present "environment:<name>" instead of the
                 # branch ref. The production environment itself is restricted to GitHubBranch.
                 token.actions.githubusercontent.com:sub:
-                  - !Sub 'repo:${GitHubRepository}:environment:production'
-                  - !Sub 'repo:${GitHubRepository}:ref:refs/heads/${GitHubBranch}'
+                  - !Sub
+                    - '${Prefix}:environment:production'
+                    - Prefix: !If [HasSubjectPrefix, !Ref GitHubOidcSubjectPrefix, !Sub 'repo:${GitHubRepository}']
+                  - !Sub
+                    - '${Prefix}:ref:refs/heads/${GitHubBranch}'
+                    - Prefix: !If [HasSubjectPrefix, !Ref GitHubOidcSubjectPrefix, !Sub 'repo:${GitHubRepository}']
       Policies:
         - PolicyName: deploy-site
           PolicyDocument:
