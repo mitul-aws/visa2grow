@@ -1,0 +1,14 @@
+node_modules
+dist
+dist-ssr
+dist-server
+dist-lambda
+lambda.zip
+.vercel
+.env
+.env.local
+.env.*.local
+test-results
+playwright-report
+*.log
+.DS_Store

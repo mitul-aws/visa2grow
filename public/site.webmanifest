@@ -1,0 +1,21 @@
+{
+  "name": "Visa2Grow",
+  "short_name": "Visa2Grow",
+  "description": "AI-First Software Development",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#F6F8FC",
+  "theme_color": "#081329",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

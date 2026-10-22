@@ -1,0 +1,193 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------ */
+/* Design tokens                                                       */
+/* ------------------------------------------------------------------ */
+@theme {
+  --font-sans: 'Geist Variable', 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'JetBrains Mono', Menlo, monospace;
+
+  --color-blue: #2858f5;
+  --color-blue-600: #1f47d6;
+  --color-blue-50: #eef2ff;
+  --color-violet: #8546f8;
+  --color-violet-50: #f4eeff;
+  --color-cyan: #20c8f5;
+  --color-cyan-50: #e8f9fe;
+  --color-navy: #081329;
+  --color-navy-800: #0e1d3d;
+  --color-navy-700: #172a52;
+  --color-canvas: #f6f8fc;
+  --color-card: #ffffff;
+  --color-ink: #111827;
+  --color-muted: #52617a;
+  --color-line: #e3e9f3;
+  --color-success: #0f8a5f;
+  --color-danger: #c42b3b;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+
+  --shadow-card: 0 1px 2px rgb(17 24 39 / 0.04), 0 4px 16px -4px rgb(17 24 39 / 0.06);
+  --shadow-lift: 0 2px 4px rgb(17 24 39 / 0.04), 0 18px 40px -12px rgb(40 88 245 / 0.18);
+  --shadow-float: 0 24px 60px -20px rgb(8 19 41 / 0.28), 0 2px 6px rgb(8 19 41 / 0.06);
+
+  --text-display: clamp(2.5rem, 1.6rem + 4.2vw, 4.5rem);
+  --text-display--line-height: 1.04;
+  --text-display--letter-spacing: -0.035em;
+  --text-h1: clamp(2.1rem, 1.5rem + 2.6vw, 3.4rem);
+  --text-h1--line-height: 1.08;
+  --text-h1--letter-spacing: -0.03em;
+  --text-h2: clamp(1.75rem, 1.3rem + 1.7vw, 2.6rem);
+  --text-h2--line-height: 1.12;
+  --text-h2--letter-spacing: -0.025em;
+  --text-lead: clamp(1.05rem, 1rem + 0.3vw, 1.25rem);
+  --text-lead--line-height: 1.6;
+
+  --animate-gradient-pan: gradient-pan 10s ease-in-out infinite alternate;
+  --animate-float: float 7s ease-in-out infinite;
+
+  @keyframes gradient-pan {
+    from { background-position: 0% 50%; }
+    to { background-position: 100% 50%; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    scroll-padding-top: 5.5rem;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+  body {
+    @apply bg-canvas font-sans text-ink antialiased;
+    overflow-x: clip;
+    font-feature-settings: 'ss01', 'cv11';
+  }
+  ::selection { background: rgb(40 88 245 / 0.18); }
+
+  :focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  .on-dark :focus-visible { outline-color: var(--color-cyan); }
+
+  h1, h2, h3, h4 { text-wrap: balance; }
+  p { text-wrap: pretty; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Utilities                                                           */
+/* ------------------------------------------------------------------ */
+@utility container-page {
+  width: 100%;
+  max-width: 76rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  @media (width >= 40rem) { padding-inline: 1.5rem; }
+  @media (width >= 64rem) { padding-inline: 2rem; }
+}
+
+@utility text-gradient {
+  background-image: linear-gradient(100deg, var(--color-blue) 0%, var(--color-violet) 70%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility text-gradient-dark {
+  background-image: linear-gradient(100deg, var(--color-cyan) 0%, #9d74ff 75%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility bg-brand-gradient {
+  background-image: linear-gradient(110deg, var(--color-blue) 0%, var(--color-violet) 100%);
+}
+
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(82 97 122 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(82 97 122 / 0.07) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+@utility bg-grid-dark {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+@utility sr-only-focusable {
+  position: absolute;
+  left: 1rem;
+  top: -100px;
+  &:focus { top: 1rem; }
+}
+
+/* Animated gradient underline used on key headline words. */
+@utility gradient-animated {
+  background-image: linear-gradient(100deg, var(--color-blue), var(--color-violet), var(--color-cyan), var(--color-blue));
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  @media (prefers-reduced-motion: no-preference) {
+    animation: var(--animate-gradient-pan);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Scroll reveal                                                       */
+/* Content is fully visible in the prerendered HTML. Only once the     */
+/* app has mounted (html.reveal-ready) do off-screen blocks start      */
+/* hidden, so nothing depends on JavaScript to be readable.            */
+/* ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-ready .reveal:not(.is-visible) {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  .reveal-ready .reveal {
+    transition:
+      opacity 0.6s cubic-bezier(0.2, 0.7, 0.2, 1),
+      transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Article prose                                                       */
+/* ------------------------------------------------------------------ */
+.prose-v2g { color: var(--color-ink); font-size: 1.0625rem; line-height: 1.75; }
+.prose-v2g > * + * { margin-top: 1.15em; }
+.prose-v2g h2 { font-size: 1.6rem; line-height: 1.25; font-weight: 700; letter-spacing: -0.02em; margin-top: 2.2em; }
+.prose-v2g h3 { font-size: 1.25rem; line-height: 1.3; font-weight: 650; margin-top: 1.8em; }
+.prose-v2g ul, .prose-v2g ol { padding-left: 1.3em; }
+.prose-v2g ul { list-style: disc; }
+.prose-v2g ol { list-style: decimal; }
+.prose-v2g li + li { margin-top: 0.45em; }
+.prose-v2g li::marker { color: var(--color-violet); }
+.prose-v2g a { color: var(--color-blue); text-decoration: underline; text-underline-offset: 3px; }
+.prose-v2g blockquote {
+  border-left: 3px solid var(--color-violet);
+  padding: 0.25em 0 0.25em 1.1em;
+  color: var(--color-muted);
+  font-style: italic;
+}
+.prose-v2g code { font-family: var(--font-mono); font-size: 0.9em; background: var(--color-blue-50); padding: 0.1em 0.35em; border-radius: 4px; }

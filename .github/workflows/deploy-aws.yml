@@ -1,0 +1,133 @@
+# Test, build and deploy the Visa2Grow website to AWS (S3 + CloudFront + Lambda).
+#
+# One-time setup (docs/deploy-aws.md):
+#   1. Deploy the infrastructure:  scripts/aws/deploy-infra.sh
+#   2. GitHub → Settings → Secrets and variables → Actions:
+#        secret   AWS_DEPLOY_ROLE_ARN  = stack output GitHubDeployRoleArn
+#        variable AWS_STACK_NAME       = visa2grow-site (optional, this is the default)
+#        variable SITE_URL             = https://www.visa2grow.com (canonical URL baked into the build)
+#   3. Create a "production" environment (optionally with required reviewers).
+#
+# No AWS keys are stored in GitHub: the deploy job gets short-lived credentials
+# through OpenID Connect, limited to this site's bucket, distribution and Lambda.
+
+name: Deploy to AWS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '22'
+  AWS_REGION: us-east-1
+
+jobs:
+  verify:
+    name: Test and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VITE_SITE_URL: ${{ vars.SITE_URL || 'https://www.visa2grow.com' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Check generated CloudFormation is up to date
+        run: npm run aws:template -- --check
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build site (typecheck + prerender)
+        run: npm run build
+
+      - name: Build inquiry Lambda
+        run: npm run build:lambda
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end tests
+        run: npm run test:e2e
+        env:
+          CI: 'true'
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-build
+          path: |
+            dist
+            dist-lambda
+          include-hidden-files: true
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: test-results
+          retention-days: 7
+
+  deploy:
+    name: Deploy to S3 + CloudFront
+    needs: verify
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: ${{ vars.SITE_URL || 'https://www.visa2grow.com' }}
+    permissions:
+      contents: read
+      id-token: write # for AWS OIDC
+    env:
+      STACK_NAME: ${{ vars.AWS_STACK_NAME || 'visa2grow-site' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: site-build
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: visa2grow-deploy-${{ github.run_id }}
+
+      - name: Deploy
+        run: scripts/aws/deploy-site.sh
+
+      - name: Smoke test
+        run: |
+          set -euo pipefail
+          DOMAIN="$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" \
+            --query "Stacks[0].Outputs[?OutputKey=='DistributionDomainName'].OutputValue" --output text)"
+          check() { # url expected-status
+            code="$(curl -s -o /dev/null -w '%{http_code}' "$1")"
+            echo "$1 -> $code (expected $2)"; test "$code" = "$2"
+          }
+          check "https://$DOMAIN/" 200
+          check "https://$DOMAIN/services/web-development" 200
+          check "https://$DOMAIN/this-page-does-not-exist" 404
+          check "https://$DOMAIN/api/inquiry" 405
+          curl -sI "https://$DOMAIN/" | grep -i '^content-security-policy:' >/dev/null && echo "security headers present"
