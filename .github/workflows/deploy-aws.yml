@@ -132,4 +132,11 @@ jobs:
           check "https://$DOMAIN/services/web-development" 200
           check "https://$DOMAIN/this-page-does-not-exist" 404
           check "https://$DOMAIN/api/inquiry" 405
+          # The form endpoint must accept same-site posts (422 = reached validation; sends no email).
+          code="$(curl -s -o /dev/null -w '%{http_code}' -X POST "https://$DOMAIN/api/inquiry" \
+            -H "Origin: https://$DOMAIN" -H 'Content-Type: application/json' -d '{}')"
+          echo "POST /api/inquiry (same site, empty) -> $code (expected 422)"; test "$code" = "422"
+          code="$(curl -s -o /dev/null -w '%{http_code}' -X POST "https://$DOMAIN/api/inquiry" \
+            -H 'Origin: https://evil.example' -H 'Content-Type: application/json' -d '{}')"
+          echo "POST /api/inquiry (other site) -> $code (expected 403)"; test "$code" = "403"
           curl -sI "https://$DOMAIN/" | grep -i '^content-security-policy:' >/dev/null && echo "security headers present"

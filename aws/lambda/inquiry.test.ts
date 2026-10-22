@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { handler, loadApiKey, resetKeyCache, type FunctionUrlEvent } from './inquiry';
+import { handleEvent, handler, loadApiKey, resetKeyCache, type FunctionUrlEvent } from './inquiry';
 
 const env = {
   ORIGIN_VERIFY_SECRET: 'cf-shared-secret',
@@ -42,35 +42,54 @@ function event({ headers: extra, ...over }: Partial<FunctionUrlEvent> & { header
 afterEach(() => resetKeyCache());
 
 describe('inquiry Lambda', () => {
+  it('reads settings from process.env, not from the Lambda context argument', async () => {
+    // AWS invokes handler(event, context); context must never be mistaken for settings.
+    const saved = { ...process.env };
+    Object.assign(process.env, env);
+    try {
+      const context = { functionName: 'visa2grow-site-inquiry', awsRequestId: 'abc' };
+      const invoke = handler as unknown as (e: FunctionUrlEvent, c: unknown) => ReturnType<typeof handler>;
+      const direct = await invoke(event({ headers: { 'x-origin-verify': '' } }), context);
+      expect(direct.statusCode).toBe(403); // secret enforced → env was read
+      const viaCloudFront = await invoke(
+        event({ headers: { origin: 'https://d111abcdef8.cloudfront.net', 'x-viewer-host': 'd111abcdef8.cloudfront.net' }, body: '{}' }),
+        context,
+      );
+      expect(viaCloudFront.statusCode).toBe(422); // viewer host trusted → reached validation
+    } finally {
+      process.env = saved;
+    }
+  });
+
   it('refuses calls that did not come through CloudFront', async () => {
-    const res = await handler(event({ headers: { 'x-origin-verify': 'wrong' } }), env);
+    const res = await handleEvent(event({ headers: { 'x-origin-verify': 'wrong' } }), env);
     expect(res.statusCode).toBe(403);
   });
 
   it('answers the CORS preflight for the production origin', async () => {
-    const res = await handler(event({ requestContext: { http: { method: 'OPTIONS' } }, body: undefined }), env);
+    const res = await handleEvent(event({ requestContext: { http: { method: 'OPTIONS' } }, body: undefined }), env);
     expect(res.statusCode).toBe(204);
     expect(res.headers['access-control-allow-origin']).toBe('https://visa2grow.com');
   });
 
   it('treats the CloudFront viewer host as same-origin, but not other sites', async () => {
     const cf = { origin: 'https://d111abcdef8.cloudfront.net', 'x-viewer-host': 'd111abcdef8.cloudfront.net' };
-    const ok = await handler(event({ headers: cf, body: JSON.stringify({ ...valid, email: 'bad' }) }), env);
+    const ok = await handleEvent(event({ headers: cf, body: JSON.stringify({ ...valid, email: 'bad' }) }), env);
     expect(ok.statusCode).toBe(422); // passed the origin check, reached validation
-    const evil = await handler(event({ headers: { origin: 'https://evil.example', 'x-viewer-host': 'visa2grow.com' } }), env);
+    const evil = await handleEvent(event({ headers: { origin: 'https://evil.example', 'x-viewer-host': 'visa2grow.com' } }), env);
     expect(evil.statusCode).toBe(403);
   });
 
   it('validates input (including base64-encoded bodies)', async () => {
     const body = Buffer.from(JSON.stringify({ ...valid, email: 'nope' })).toString('base64');
-    const res = await handler(event({ body, isBase64Encoded: true }), env);
+    const res = await handleEvent(event({ body, isBase64Encoded: true }), env);
     expect(res.statusCode).toBe(422);
     expect(JSON.parse(res.body).fieldErrors.email).toBeTruthy();
   });
 
   it('returns 503 when the Resend key is not available', async () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const res = await handler(event(), env);
+    const res = await handleEvent(event(), env);
     expect(res.statusCode).toBe(503);
     expect(JSON.parse(res.body)).toEqual({ ok: false, error: 'not_configured' });
     spy.mockRestore();

@@ -83,7 +83,16 @@ async function toResult(response: Response): Promise<FunctionUrlResult> {
   return { statusCode: response.status, headers, body: await response.text() };
 }
 
-export async function handler(event: FunctionUrlEvent, env: NodeJS.ProcessEnv = process.env): Promise<FunctionUrlResult> {
+/**
+ * Lambda entry point. AWS calls it as handler(event, context), so it must not
+ * take settings from its second argument: it always reads process.env.
+ */
+export function handler(event: FunctionUrlEvent): Promise<FunctionUrlResult> {
+  return handleEvent(event, process.env);
+}
+
+/** The actual logic, with the environment passed explicitly (for tests). */
+export async function handleEvent(event: FunctionUrlEvent, env: NodeJS.ProcessEnv): Promise<FunctionUrlResult> {
   const expected = env.ORIGIN_VERIFY_SECRET;
   const provided = event.headers?.['x-origin-verify'];
   if (expected && provided !== expected) {
