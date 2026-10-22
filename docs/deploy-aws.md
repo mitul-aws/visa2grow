@@ -101,6 +101,7 @@ GitHub → repository → **Settings → Secrets and variables → Actions**:
 
 - Secret `AWS_DEPLOY_ROLE_ARN` = stack output `GitHubDeployRoleArn`
 - Variable `SITE_URL` = `https://www.visa2grow.com` (optional; this is the default)
+- Variable `DEPLOY_TO_AWS` = `true` (until this is set, the pipeline only runs tests)
 - Variable `AWS_STACK_NAME` only if you changed the stack name
 
 **Settings → Environments → New environment `production`.** Add required reviewers if you want to approve each release.
