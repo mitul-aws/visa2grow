@@ -24,7 +24,7 @@ stack in one region is simplest. Visitors in India are still served from nearby 
 
 ## What the pipeline does
 
-On every push to `main` (or a manual run):
+On every push to `master` (or a manual run):
 
 1. **Verify** job: install, check the generated template is current, unit tests, build + prerender, build the
    Lambda, Playwright end-to-end tests (with the production CSP). Uploads the build as an artifact.
@@ -107,9 +107,9 @@ GitHub → repository → **Settings → Secrets and variables → Actions**:
 **Settings → Environments → New environment `production`.** Add required reviewers if you want to approve each release.
 
 The deploy role can only write to this bucket, invalidate this distribution and update this Lambda, and only
-workflows running on the `main` branch of that repository can assume it.
+workflows running on the `main` branch (`master`) of that repository can assume it.
 
-Push to `main` (or run the workflow manually) to deploy.
+Push to `master` (or run the workflow manually) to deploy.
 
 ### 5. DNS at GoDaddy
 
@@ -142,7 +142,7 @@ stack then supports serving the bare domain directly via `DOMAIN_NAMES`/`CANONIC
 
 ## Day-to-day
 
-- **Release:** merge to `main`. The pipeline tests and deploys, usually in 5–8 minutes.
+- **Release:** merge to `master`. The pipeline tests and deploys, usually in 5–8 minutes.
 - **Roll back:** re-run the workflow for an earlier commit (Actions → Deploy to AWS → run on that commit), or revert
   the commit. S3 versioning also keeps previous object versions for 30 days.
 - **Infrastructure change:** edit `aws/cloudformation.template.yml`, run `npm run aws:template`, commit, and run

@@ -70,7 +70,7 @@ Parameters:
     Description: owner/repo allowed to deploy via GitHub Actions OIDC. Leave empty to skip the deploy role.
   GitHubBranch:
     Type: String
-    Default: main
+    Default: master
   CreateGitHubOidcProvider:
     Type: String
     Default: 'true'

@@ -137,7 +137,7 @@ hydration; the canonical URL ignores them.
 ## Deploying
 
 **AWS (S3 + CloudFront + Lambda), with a GitHub Actions pipeline:** see [docs/deploy-aws.md](docs/deploy-aws.md).
-In short: `scripts/aws/deploy-infra.sh` once, add the `AWS_DEPLOY_ROLE_ARN` secret in GitHub, then every push to `main`
+In short: `scripts/aws/deploy-infra.sh` once, add the `AWS_DEPLOY_ROLE_ARN` secret in GitHub, then every push to `master`
 is tested and deployed by `.github/workflows/deploy-aws.yml`.
 
 Other static hosts:

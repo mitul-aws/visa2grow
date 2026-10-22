@@ -23,7 +23,7 @@ aws cloudformation deploy \
     "CanonicalHost=${CANONICAL_HOST-www.visa2grow.com}" \
     "CertificateArn=${CERTIFICATE_ARN:-}" \
     "GitHubRepository=${GITHUB_REPOSITORY:-}" \
-    "GitHubBranch=${GITHUB_BRANCH:-main}" \
+    "GitHubBranch=${GITHUB_BRANCH:-master}" \
     "CreateGitHubOidcProvider=${CREATE_GITHUB_OIDC_PROVIDER:-true}" \
     "EnableWafRateLimit=${ENABLE_WAF:-false}" \
     "InquiryNotificationEmail=${INQUIRY_NOTIFICATION_EMAIL:-sales@visa2grow.com}" \

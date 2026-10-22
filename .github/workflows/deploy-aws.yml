@@ -16,7 +16,7 @@ name: Deploy to AWS
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -89,8 +89,8 @@ jobs:
   deploy:
     name: Deploy to S3 + CloudFront
     needs: verify
-    # Deploys only from main, and only once AWS is set up (repository variable DEPLOY_TO_AWS=true).
-    if: github.ref == 'refs/heads/main' && vars.DEPLOY_TO_AWS == 'true'
+    # Deploys only from master, and only once AWS is set up (repository variable DEPLOY_TO_AWS=true).
+    if: github.ref == 'refs/heads/master' && vars.DEPLOY_TO_AWS == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment:

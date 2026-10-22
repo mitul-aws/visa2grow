@@ -48,6 +48,39 @@ test.describe('responsive layout', () => {
     await context.close();
   });
 
+  test('every content block appears when scrolled into view', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    for (const route of ['/', '/services/code-audit', '/portfolio', '/process', '/about', '/insights']) {
+      await page.goto(route);
+      await page.waitForLoadState('networkidle');
+      const height = await page.evaluate(() => document.documentElement.scrollHeight);
+      for (let y = 0; y < height; y += 350) {
+        await page.mouse.wheel(0, 350);
+        await page.waitForTimeout(60);
+      }
+      await page.waitForTimeout(800);
+      const stuck = await page.evaluate(() =>
+        [...document.querySelectorAll('.reveal')].filter((n) => getComputedStyle(n).opacity !== '1').length,
+      );
+      expect(stuck, `${route}: blocks still invisible after scrolling`).toBe(0);
+    }
+  });
+
+  test('jumping to a section does not leave the content above it invisible', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    await page.keyboard.press('End');
+    await page.waitForTimeout(500);
+    await page.keyboard.press('Home');
+    await page.waitForTimeout(800);
+    const top = await page.evaluate(() =>
+      [...document.querySelectorAll('.reveal')]
+        .filter((n) => n.getBoundingClientRect().top < innerHeight && getComputedStyle(n).opacity !== '1').length,
+    );
+    expect(top).toBe(0);
+  });
+
   test('keyboard users can skip to content', async ({ page }) => {
     await page.goto('/about');
     await page.keyboard.press('Tab');
